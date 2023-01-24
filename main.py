@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 import argparse
-from FLAlgorithms.servers.serveravg import FedAvg
-from FLAlgorithms.servers.serverFedProx import FedProx
 from FLAlgorithms.servers.serverFedDistill import FedDistill
-from FLAlgorithms.servers.serverpFedGen import FedGen
 from FLAlgorithms.servers.serverpFedEnsemble import FedEnsemble
 from utils.model_utils import create_model
 from utils.plot_utils import *
@@ -12,16 +9,8 @@ from multiprocessing import Pool
 
 def create_server_n_user(args, i):
     model = create_model(args.model, args.dataset, args.algorithm)
-    if ('FedAvg' in args.algorithm):
-        server=FedAvg(args, model, i)
-    elif 'FedGen' in args.algorithm:
-        server=FedGen(args, model, i)
-    elif ('FedProx' in args.algorithm):
-        server = FedProx(args, model, i)
-    elif ('FedDistill' in args.algorithm):
+    if ('FedDistill' in args.algorithm):
         server = FedDistill(args, model, i)
-    elif ('FedEnsemble' in args.algorithm):
-        server = FedEnsemble(args, model, i)
     else:
         print("Algorithm {} has not been implemented.".format(args.algorithm))
         exit()
@@ -48,7 +37,7 @@ if __name__ == "__main__":
     parser.add_argument("--dataset", type=str, default="Mnist")
     parser.add_argument("--model", type=str, default="cnn")
     parser.add_argument("--train", type=int, default=1, choices=[0,1])
-    parser.add_argument("--algorithm", type=str, default="pFedMe")
+    parser.add_argument("--algorithm", type=str, default="FedDistill")
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--gen_batch_size", type=int, default=32, help='number of samples from generator')
     parser.add_argument("--learning_rate", type=float, default=0.01, help="Local learning rate")

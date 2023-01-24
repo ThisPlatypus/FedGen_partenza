@@ -51,7 +51,8 @@ class FedDistill(Server):
 
         for glob_iter in range(self.num_glob_iters):
             print("\n\n-------------Round number: ",glob_iter, " -------------\n\n")
-            self.selected_users, self.user_idxs=self.select_users(glob_iter, self.num_users, return_idx=True)
+            self.selected_users=self.select_users(glob_iter, self.num_users, return_idx=True)
+            self.user_idxs = self.select_users(glob_iter, self.num_users, return_idx=True)
             if self.share_model:
                 self.send_parameters(mode=self.mode)# broadcast averaged prediction model
             self.evaluate() # evaluate global model performance

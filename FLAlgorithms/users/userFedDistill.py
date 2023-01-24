@@ -1,9 +1,6 @@
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
 from FLAlgorithms.users.userbase import User
-from FLAlgorithms.optimizers.fedoptimizer import pFedIBOptimizer
 
 class LogitTracker():
     def __init__(self, unique_labels):

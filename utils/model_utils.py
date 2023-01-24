@@ -16,19 +16,9 @@ METRICS = ['glob_acc', 'per_acc', 'glob_loss', 'per_loss', 'user_train_time', 's
 
 
 def get_data_dir(dataset):
-    if 'EMnist' in dataset:
-        #EMnist-alpha0.1-ratio0.1-0-letters
+    if  'Mnist' in dataset:
         dataset_=dataset.replace('alpha', '').replace('ratio', '').split('-')
-        alpha, ratio =dataset_[1], dataset_[2]
-        types = 'letters'
-        path_prefix = os.path.join('data', 'EMnist', f'u20-{types}-alpha{alpha}-ratio{ratio}')
-        train_data_dir=os.path.join(path_prefix, 'train')
-        test_data_dir=os.path.join(path_prefix, 'test')
-        proxy_data_dir = 'data/proxy_data/emnist-n10/'
-
-    elif 'Mnist' in dataset:
-        dataset_=dataset.replace('alpha', '').replace('ratio', '').split('-')
-        alpha, ratio=dataset_[1], dataset_[2]
+        alpha, ratio= 0.1 , 0.5#dataset_[1], dataset_[2]
         #path_prefix=os.path.join('data', 'Mnist', 'u20alpha{}min10ratio{}'.format(alpha, ratio))
         path_prefix=os.path.join('data', 'Mnist', 'u20c10-alpha{}-ratio{}'.format(alpha, ratio))
         train_data_dir=os.path.join(path_prefix, 'train')
