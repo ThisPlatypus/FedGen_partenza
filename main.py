@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 import argparse
 from FLAlgorithms.servers.serverFedDistill import FedDistill
-from FLAlgorithms.servers.serverpFedEnsemble import FedEnsemble
 from utils.model_utils import create_model
-from utils.plot_utils import *
 import torch
 from multiprocessing import Pool
 
@@ -21,20 +19,20 @@ def run_job(args, i):
     torch.manual_seed(i)
     print("\n\n         [ Start training iteration {} ]           \n\n".format(i))
     # Generate model
-    server = create_server_n_user(args, i)
+    server = create_server_n_user(args, i) #set up
     if args.train:
         server.train(args)
         server.test()
 
 def main(args):
-    for i in range(args.times):
+    for i in range(args.times): #iterate for args.times times
         run_job(args, i)
     print("Finished training.")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", type=str, default="Mnist")
+    parser.add_argument("--dataset", type=str, default="Chiara")
     parser.add_argument("--model", type=str, default="cnn")
     parser.add_argument("--train", type=int, default=1, choices=[0,1])
     parser.add_argument("--algorithm", type=str, default="FedDistill")

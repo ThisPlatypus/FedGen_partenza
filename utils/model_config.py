@@ -2,8 +2,7 @@ CONFIGS_ = {
     # input_channel, n_class, hidden_dim, latent_dim
     'mnist': ([6, 16, 'F'], 1, 10, 784, 32),
     'mnist_cnn1': ([6, 'M', 16, 'M', 'F'], 1, 10, 64, 32),
-    'mnist_cnn2': ([16, 'M', 32, 'M', 'F'], 1, 10, 128, 32),
-    'celeb': ([16, 'M', 32, 'M', 64, 'M', 'F'], 3, 2, 64, 32)
+    'mnist_cnn2': ([16, 'M', 32, 'M', 'F'], 1, 10, 128, 32)
 }
 
 # temporary roundabout to evaluate sensitivity of the generator

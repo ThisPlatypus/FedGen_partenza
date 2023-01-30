@@ -24,15 +24,6 @@ def get_data_dir(dataset):
         train_data_dir=os.path.join(path_prefix, 'train')
         test_data_dir=os.path.join(path_prefix, 'test')
         proxy_data_dir = 'data/proxy_data/mnist-n10/'
-
-    elif 'celeb' in dataset.lower():
-        dataset_ = dataset.lower().replace('user', '').replace('agg','').split('-')
-        user, agg_user = dataset_[1], dataset_[2]
-        path_prefix = os.path.join('data', 'CelebA', 'user{}-agg{}'.format(user,agg_user))
-        train_data_dir=os.path.join(path_prefix, 'train')
-        test_data_dir=os.path.join(path_prefix, 'test')
-        proxy_data_dir=os.path.join('/user500/', 'proxy')
-
     else:
         raise ValueError("Dataset not recognized.")
     return train_data_dir, test_data_dir, proxy_data_dir
@@ -186,8 +177,8 @@ def read_user_data(index, data, dataset='', count_labels=False):
 def get_dataset_name(dataset):
     dataset=dataset.lower()
     passed_dataset=dataset.lower()
-    if 'celeb' in dataset:
-        passed_dataset='celeb'
+    if 'Chiara' in dataset:
+        passed_dataset='Chiara'
     elif 'emnist' in dataset:
         passed_dataset='emnist'
     elif 'mnist' in dataset:

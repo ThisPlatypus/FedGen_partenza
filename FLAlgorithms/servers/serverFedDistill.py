@@ -2,16 +2,18 @@ from FLAlgorithms.users.userFedDistill import UserFedDistill
 from FLAlgorithms.servers.serverbase import Server
 from utils.model_utils import read_data, read_user_data, aggregate_user_test_data
 import numpy as np
+from data.CIFAR100_download_and_split import *
 
 class FedDistill(Server):
     def __init__(self, args, model, seed):
         super().__init__(args, model, seed)
 
+
         # Initialize data for all users
         data = read_data(args.dataset)
         # data contains: clients, groups, train_data, test_data, proxy_data
         clients = data[0]
-        total_users = len(clients)
+        total_users = 50
         self.total_test_samples = 0
         self.slow_start = 20
         self.share_model = 'FL' in self.algorithm
@@ -22,8 +24,9 @@ class FedDistill(Server):
         self.init_ensemble_configs()
         #### creating users ####
         self.users = []
+
         for i in range(total_users):
-            id, train_data, test_data, label_info =read_user_data(i, data, dataset=args.dataset, count_labels=True)
+            id, train_data, test_data, label_info =load_datasets(50, False)[i]
             self.total_train_samples+=len(train_data)
             self.total_test_samples += len(test_data)
             id, train, test=read_user_data(i, data, dataset=args.dataset)
