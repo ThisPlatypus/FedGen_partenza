@@ -23,7 +23,12 @@ def get_dataset(mode='train'):
     transform = transforms.Compose(
        [transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])
 
-    dataset = MNIST(root='./data', train=True if mode=='train' else False, download=True, transform=transform)
+    dataset = MNIST(
+        root='./data',
+        train=mode == 'train',
+        download=True,
+        transform=transform,
+    )
     n_sample = len(dataset.data)
     SRC_N_CLASS = len(dataset.classes)
     # full batch
@@ -46,12 +51,11 @@ def get_dataset(mode='train'):
 
 def sample_class(SRC_N_CLASS, NUM_LABELS, user_id, label_random=False):
     assert NUM_LABELS <= SRC_N_CLASS
-    if label_random:
-        source_classes = [n for n in range(SRC_N_CLASS)]
-        random.shuffle(source_classes)
-        return source_classes[:NUM_LABELS]
-    else:
+    if not label_random:
         return [(user_id + j) % SRC_N_CLASS for j in range(NUM_LABELS)]
+    source_classes = list(range(SRC_N_CLASS))
+    random.shuffle(source_classes)
+    return source_classes[:NUM_LABELS]
 
 def devide_train_data(data, n_sample, SRC_CLASSES, NUM_USERS, min_sample, alpha=0.5, sampling_ratio=0.5):
     min_sample = 10#len(SRC_CLASSES) * min_sample
@@ -64,7 +68,7 @@ def devide_train_data(data, n_sample, SRC_CLASSES, NUM_USERS, min_sample, alpha=
         max_samples_per_user = sampling_ratio * n_sample / NUM_USERS
         for l in SRC_CLASSES:
             # get indices for all that label
-            idx_l = [i for i in range(len(data[l]))]
+            idx_l = list(range(len(data[l])))
             np.random.shuffle(idx_l)
             if sampling_ratio < 1:
                 samples_for_l = int( min(max_samples_per_user, int(sampling_ratio * len(data[l]))) )
@@ -103,10 +107,7 @@ def divide_test_data(NUM_USERS, SRC_CLASSES, test_data, Labels, unknown_test):
     test_y = [[] for _ in range(NUM_USERS)]
     idx = {l: 0 for l in SRC_CLASSES}
     for user in trange(NUM_USERS):
-        if unknown_test: # use all available labels
-            user_sampled_labels = SRC_CLASSES
-        else:
-            user_sampled_labels =  list(Labels[user])
+        user_sampled_labels = SRC_CLASSES if unknown_test else list(Labels[user])
         for l in user_sampled_labels:
             num_samples = int(len(test_data[l]) / NUM_USERS )
             assert num_samples + idx[l] <= len(test_data[l])
@@ -164,9 +165,6 @@ def main():
         if args.format == "json":
             raise NotImplementedError(
                 "json is not supported because the train_data/test_data uses the tensor instead of list and tensor cannot be saved into json.")
-            with open(data_path, 'w') as outfile:
-                print(f"Dumping train data => {data_path}")
-                json.dump(dataset, outfile)
         elif args.format == "pt":
             with open(data_path, 'wb') as outfile:
                 print(f"Dumping train data => {data_path}")
@@ -186,10 +184,11 @@ def main():
             return Labels, idx_batch, samples_per_user
 
 
-    print(f"Reading source dataset.")
+
+    print("Reading source dataset.")
     train_data, n_train_sample, SRC_N_CLASS = get_dataset(mode='train')
     test_data, n_test_sample, SRC_N_CLASS = get_dataset(mode='test')
-    SRC_CLASSES=[l for l in range(SRC_N_CLASS)]
+    SRC_CLASSES = list(range(SRC_N_CLASS))
     random.shuffle(SRC_CLASSES)
     print("{} labels in total.".format(len(SRC_CLASSES)))
     Labels, idx_batch, samples_per_user = process_user_data('train', train_data, n_train_sample, SRC_CLASSES)

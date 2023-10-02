@@ -35,7 +35,7 @@ class FedDistill(Server):
             self.users.append(user)
         print("Loading testing data.")
         print("Number of Train/Test samples:", self.total_train_samples, self.total_test_samples)
-        print("Data from {} users in total.".format(total_users))
+        print(f"Data from {total_users} users in total.")
         print("Finished creating FedAvg server.")
 
     def train(self, args):
@@ -75,13 +75,11 @@ class FedDistill(Server):
         self.save_model()
 
     def aggregate_logits(self, selected=True):
-        user_logits = 0
         users = self.selected_users if selected else self.users
-        for user in users:
-            user_logits += user.logit_tracker.avg()
+        user_logits = sum(user.logit_tracker.avg() for user in users)
         self.user_logits = user_logits / len(users)
 
     def send_logits(self):
-        if self.user_logits == None: return
+        if self.user_logits is None: return
         for user in self.selected_users:
             user.global_logits = self.user_logits.clone().detach()

@@ -34,7 +34,7 @@ class Server:
         self.metrics = {key:[] for key in METRICS}
         self.timestamp = None
         self.save_path = args.result_path
-        os.system("mkdir -p {}".format(self.save_path))
+        os.system(f"mkdir -p {self.save_path}")
 
 
     def init_ensemble_configs(self):
@@ -55,9 +55,9 @@ class Server:
         self.ensemble_train_loss = []
         self.n_teacher_iters = 5
         self.n_student_iters = 1
-        print("ensemble_lr: {}".format(self.ensemble_lr) )
-        print("ensemble_batch_size: {}".format(self.ensemble_batch_size) )
-        print("unique_labels: {}".format(self.unique_labels) )
+        print(f"ensemble_lr: {self.ensemble_lr}")
+        print(f"ensemble_batch_size: {self.ensemble_batch_size}")
+        print(f"unique_labels: {self.unique_labels}")
 
 
     def if_personalized(self):
@@ -95,9 +95,7 @@ class Server:
         else:
             for param in self.model.parameters():
                 param.data = torch.zeros_like(param.data)
-        total_train = 0
-        for user in self.selected_users:
-            total_train += user.train_samples
+        total_train = sum(user.train_samples for user in self.selected_users)
         for user in self.selected_users:
             self.add_parameters(user, user.train_samples / total_train,partial=partial)
 
@@ -132,11 +130,10 @@ class Server:
             return self.users
 
         num_users = min(num_users, len(self.users))
-        if return_idx:
-            user_idxs = np.random.choice(range(len(self.users)), num_users, replace=False)  # , p=pk)
-            return [self.users[i] for i in user_idxs], user_idxs
-        else:
+        if not return_idx:
             return np.random.choice(self.users, num_users, replace=False)
+        user_idxs = np.random.choice(range(len(self.users)), num_users, replace=False)  # , p=pk)
+        return [self.users[i] for i in user_idxs], user_idxs
 
 
     def init_loss_fn(self):
@@ -147,7 +144,7 @@ class Server:
 
     def save_results(self, args):
         alg = get_log_path(args, args.algorithm, self.seed, args.gen_batch_size)
-        with h5py.File("./{}/{}.h5".format(self.save_path, alg), 'w') as hf:
+        with h5py.File(f"./{self.save_path}/{alg}.h5", 'w') as hf:
             for key in self.metrics:
                 hf.create_dataset(key, data=self.metrics[key])
             hf.close()

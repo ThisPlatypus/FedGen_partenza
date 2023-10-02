@@ -4,7 +4,7 @@ class pFedIBOptimizer(Optimizer):
     def __init__(self, params, lr=0.01):
         # self.local_weight_updated = local_weight # w_i,K
         if lr < 0.0:
-            raise ValueError("Invalid learning rate: {}".format(lr))
+            raise ValueError(f"Invalid learning rate: {lr}")
         defaults=dict(lr=lr)
         super(pFedIBOptimizer, self).__init__(params, defaults)
 
@@ -17,7 +17,7 @@ class pFedIBOptimizer(Optimizer):
                     continue
                 grads.append(p.grad.data)
                 if apply:
-                    if lr == None:
+                    if lr is None:
                         p.data= p.data - group['lr'] * p.grad.data
                     else:
                         p.data=p.data - lr * p.grad.data
@@ -31,7 +31,11 @@ class pFedIBOptimizer(Optimizer):
             for p in group['params']:
                 if p.grad is None and allow_unused:
                     continue
-                p.data= p.data - group['lr'] * grads[i] if beta == None else p.data - beta * grads[i]
+                p.data = (
+                    p.data - group['lr'] * grads[i]
+                    if beta is None
+                    else p.data - beta * grads[i]
+                )
                 i += 1
         return
 
@@ -39,14 +43,12 @@ class pFedIBOptimizer(Optimizer):
 class FedProxOptimizer(Optimizer):
     def __init__(self, params, lr=0.01, lamda=0.1, mu=0.001):
         if lr < 0.0:
-            raise ValueError("Invalid learning rate: {}".format(lr))
+            raise ValueError(f"Invalid learning rate: {lr}")
         defaults=dict(lr=lr, lamda=lamda, mu=mu)
         super(FedProxOptimizer, self).__init__(params, defaults)
 
     def step(self, vstar, closure=None):
-        loss=None
-        if closure is not None:
-            loss=closure
+        loss = closure if closure is not None else None
         for group in self.param_groups:
             for p, pstar in zip(group['params'], vstar):
                 # w <=== w - lr * ( w'  + lambda * (w - w* ) + mu * w )
