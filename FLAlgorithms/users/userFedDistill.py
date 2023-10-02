@@ -5,7 +5,7 @@ from FLAlgorithms.users.userbase import User
 class LogitTracker():
     def __init__(self, unique_labels):
         self.unique_labels = unique_labels
-        self.labels = [i for i in range(unique_labels)]
+        self.labels = list(range(unique_labels))
         self.label_counts = torch.ones(unique_labels) # avoid division by zero error
         self.logit_sums = torch.zeros((unique_labels,unique_labels) )
 
@@ -26,8 +26,7 @@ class LogitTracker():
 
 
     def avg(self):
-        res= self.logit_sums / self.label_counts.float().unsqueeze(1)
-        return res
+        return self.logit_sums / self.label_counts.float().unsqueeze(1)
 
 
 class UserFedDistill(User):
@@ -56,9 +55,9 @@ class UserFedDistill(User):
         self.clean_up_counts()
         self.model.train()
         REG_LOSS, TRAIN_LOSS = 0, 0
-        for epoch in range(1, self.local_epochs + 1):
+        for _ in range(1, self.local_epochs + 1):
             self.model.train()
-            for i in range(self.K): #K = local_epoch ? in my case it's just a batch
+            for _ in range(self.K):
                 result =self.get_next_train_batch(count_labels=count_labels)
                 X, y = result['X'], result['y']
                 if count_labels:
@@ -67,7 +66,9 @@ class UserFedDistill(User):
                 result=self.model(X, logit=True)
                 output, logit = result['output'], result['logit']
                 self.logit_tracker.update(logit, y)
-                if self.global_logits != None:
+                if self.global_logits is None:
+                    loss=self.loss(output, y)
+                else:
                     ### get desired logit for each sample
                     train_loss = self.loss(output, y)
                     target_p = F.softmax(self.global_logits[y,:], dim=1)
@@ -75,8 +76,6 @@ class UserFedDistill(User):
                     REG_LOSS += reg_loss
                     TRAIN_LOSS += train_loss
                     loss = train_loss + self.reg_alpha * reg_loss
-                else:
-                    loss=self.loss(output, y)
                 loss.backward()
                 self.optimizer.step()#self.local_model)
             # local-model <=== self.model

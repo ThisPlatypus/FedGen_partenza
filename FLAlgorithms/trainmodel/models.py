@@ -11,7 +11,7 @@ class Net(nn.Module):
     def __init__(self, dataset='mnist', model='cnn'):
         super(Net, self).__init__()
         # define network layers
-        print("Creating model for {}".format(dataset))
+        print(f"Creating model for {dataset}")
         self.dataset = dataset
         configs, input_channel, self.output_dim, self.hidden_dim, self.latent_dim=CONFIGS_[dataset]
         print('Network configs:', configs)
@@ -21,8 +21,7 @@ class Net(nn.Module):
         self.n_share_parameters = len(self.get_encoder())
 
     def get_number_of_parameters(self):
-        pytorch_total_params=sum(p.numel() for p in self.parameters() if p.requires_grad)
-        return pytorch_total_params
+        return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
     def build_network(self, configs, input_channel, output_dim):
         layers = nn.ModuleList()
@@ -31,25 +30,25 @@ class Net(nn.Module):
         kernel_size, stride, padding = 3, 2, 1
         for i, x in enumerate(configs):
             if x == 'F':
-                layer_name='flatten{}'.format(i)
+                layer_name = f'flatten{i}'
                 layer=nn.Flatten(1)
                 layers+=[layer]
                 layer_names+=[layer_name]
             elif x == 'M':
                 pool_layer = nn.MaxPool2d(kernel_size=2, stride=2)
-                layer_name = 'pool{}'.format(i)
+                layer_name = f'pool{i}'
                 layers += [pool_layer]
                 layer_names += [layer_name]
             else:
-                cnn_name = 'encode_cnn{}'.format(i)
+                cnn_name = f'encode_cnn{i}'
                 cnn_layer = nn.Conv2d(input_channel, x, stride=stride, kernel_size=kernel_size, padding=padding)
                 named_layers[cnn_name] = [cnn_layer.weight, cnn_layer.bias]
 
-                bn_name = 'encode_batchnorm{}'.format(i)
+                bn_name = f'encode_batchnorm{i}'
                 bn_layer = nn.BatchNorm2d(x)
                 named_layers[bn_name] = [bn_layer.weight, bn_layer.bias]
 
-                relu_name = 'relu{}'.format(i)
+                relu_name = f'relu{i}'
                 relu_layer = nn.ReLU(inplace=True)# no parameters to learn
 
                 layers += [cnn_layer, bn_layer, relu_layer]
@@ -100,17 +99,13 @@ class Net(nn.Module):
         """
         if start_layer_idx < 0: #
             return self.mapping(x, start_layer_idx=start_layer_idx, logit=logit)
-        restults={}
         z = x
         for idx in range(start_layer_idx, len(self.layers)):
             layer_name = self.layer_names[idx]
             layer = self.layers[idx]
             z = layer(z)
 
-        if self.output_dim > 1:
-            restults['output'] = F.log_softmax(z, dim=1)
-        else:
-            restults['output'] = z
+        restults = {'output': F.log_softmax(z, dim=1) if self.output_dim > 1 else z}
         if logit:
             restults['logit']=z
         return restults

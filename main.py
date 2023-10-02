@@ -10,14 +10,14 @@ def create_server_n_user(args, i):
     if ('FedDistill' in args.algorithm):
         server = FedDistill(args, model, i)
     else:
-        print("Algorithm {} has not been implemented.".format(args.algorithm))
+        print(f"Algorithm {args.algorithm} has not been implemented.")
         exit()
     return server
 
 
 def run_job(args, i):
     torch.manual_seed(i)
-    print("\n\n         [ Start training iteration {} ]           \n\n".format(i))
+    print(f"\n\n         [ Start training iteration {i} ]           \n\n")
     # Generate model
     server = create_server_n_user(args, i) #set up
     if args.train:
@@ -57,16 +57,16 @@ if __name__ == "__main__":
 
     print("=" * 80)
     print("Summary of training process:")
-    print("Algorithm: {}".format(args.algorithm))
-    print("Batch size: {}".format(args.batch_size))
-    print("Learing rate       : {}".format(args.learning_rate))
-    print("Ensemble learing rate       : {}".format(args.ensemble_lr))
-    print("Average Moving       : {}".format(args.beta))
-    print("Subset of users      : {}".format(args.num_users))
-    print("Number of global rounds       : {}".format(args.num_glob_iters))
-    print("Number of local rounds       : {}".format(args.local_epochs))
-    print("Dataset       : {}".format(args.dataset))
-    print("Local Model       : {}".format(args.model))
-    print("Device            : {}".format(args.device))
+    print(f"Algorithm: {args.algorithm}")
+    print(f"Batch size: {args.batch_size}")
+    print(f"Learing rate       : {args.learning_rate}")
+    print(f"Ensemble learing rate       : {args.ensemble_lr}")
+    print(f"Average Moving       : {args.beta}")
+    print(f"Subset of users      : {args.num_users}")
+    print(f"Number of global rounds       : {args.num_glob_iters}")
+    print(f"Number of local rounds       : {args.local_epochs}")
+    print(f"Dataset       : {args.dataset}")
+    print(f"Local Model       : {args.model}")
+    print(f"Device            : {args.device}")
     print("=" * 80)
     main(args)

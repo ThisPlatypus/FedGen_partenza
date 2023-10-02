@@ -11,7 +11,7 @@ from utils.model_config import GENERATORCONFIGS
 class Generator(nn.Module):
     def __init__(self, dataset='mnist', model='cnn', embedding=False, latent_layer_idx=-1):
         super(Generator, self).__init__()
-        print("Dataset {}".format(dataset))
+        print(f"Dataset {dataset}")
         self.embedding = embedding
         self.dataset = dataset
         #self.model=model
@@ -23,8 +23,7 @@ class Generator(nn.Module):
         self.build_network()
 
     def get_number_of_parameters(self):
-        pytorch_total_params=sum(p.numel() for p in self.parameters() if p.requires_grad)
-        return pytorch_total_params
+        return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
     def init_loss_fn(self):
         self.crossentropy_loss=nn.NLLLoss(reduce=False) # same as above
@@ -38,14 +37,14 @@ class Generator(nn.Module):
         self.fc_layers = nn.ModuleList()
         for i in range(len(self.fc_configs) - 1):
             input_dim, out_dim = self.fc_configs[i], self.fc_configs[i + 1]
-            print("Build layer {} X {}".format(input_dim, out_dim))
+            print(f"Build layer {input_dim} X {out_dim}")
             fc = nn.Linear(input_dim, out_dim)
             bn = nn.BatchNorm1d(out_dim)
             act = nn.ReLU()
             self.fc_layers += [fc, bn, act]
         ### Representation layer
         self.representation_layer = nn.Linear(self.fc_configs[-1], self.latent_dim)
-        print("Build last layer {} X {}".format(self.fc_configs[-1], self.latent_dim))
+        print(f"Build last layer {self.fc_configs[-1]} X {self.latent_dim}")
 
     def forward(self, labels, latent_layer_idx=-1, verbose=True):
         """
@@ -152,8 +151,7 @@ class DivLoss(nn.Module):
         lz=torch.mean(torch.abs(chunk1 - chunk2)) / torch.mean(
             torch.abs(eps1 - eps2))
         eps=1 * 1e-5
-        diversity_loss=1 / (lz + eps)
-        return diversity_loss
+        return 1 / (lz + eps)
 
     def forward(self, noises, layer):
         """
@@ -169,8 +167,7 @@ class DivLoss(nn.Module):
         lz=torch.mean(torch.abs(chunk1 - chunk2)) / torch.mean(
             torch.abs(eps1 - eps2))
         eps=1 * 1e-5
-        diversity_loss=1 / (lz + eps)
-        return diversity_loss
+        return 1 / (lz + eps)
 
 
 class DiversityLoss(nn.Module):

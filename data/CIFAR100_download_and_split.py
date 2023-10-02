@@ -19,11 +19,7 @@ def load_datasets(x: int):
     idx0 = torch.tensor(trainset.targets) == x
     idx1 = torch.tensor(trainset.targets) == x+50
     idx = idx0 | idx1
-    label_info = {}
-    label_info['labels'] = x
-    label_info['counts'] = sum(idx0)
-    label_info['labels'] = x+50
-    label_info['counts'] = sum(idx1)
+    label_info = {'labels': x + 50, 'counts': sum(idx1)}
     idx0t = torch.tensor(testset.targets) == x
     idx1t = torch.tensor(testset.targets) == x+50
     idxt = idx0t | idx1t
